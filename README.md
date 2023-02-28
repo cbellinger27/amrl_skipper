@@ -6,6 +6,8 @@
 
 ## Related work:
 
+- Bellinger, Colin, et al. "Active Measure Reinforcement Learning for Observation Cost Minimization." Canadian Conference on AI. 2021.
+
 - dynamic-frame skipping in FiGAR: S. Sharma, A. Srinivas, and B. Ravindran. Learning to repeat: Fine grained action repetition for deep reinforcement learning. arXiv preprint arXiv:1702.06054, 2017. → pages ix, 8
 
 - Reinforcement Learning in the Presence of Sensing Costs by Tzu-Yun Ariel Shann, M.S. UBC 2022
