@@ -1,4 +1,8 @@
-# AMRL framework where the agent select an action base on it behaviour policy and and number of times to apply the action according to its repeater policy
+# AMRL Skipper framework 
+
+## Method
+
+- The agent select an action base on it behaviour policy and and number of times to apply the action according to its repeater policy
 
 ## Related work:
 
