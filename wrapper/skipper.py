@@ -20,7 +20,7 @@ def make_env(env_name, int_reward, max_repeat, vanilla):
     if vanilla:
         return VanillaWrapper(env)
     else:
-        env = SkipperWrapper(env, int_reward=int_reward)
+        env = SkipperWrapper(env, int_reward=int_reward, max_repeat=max_repeat)
         return env
 
 class VanillaWrapper(gym.Wrapper):
@@ -59,18 +59,17 @@ class SkipperWrapper(gym.Wrapper):
         self.continuous_action_space = True if env.action_space.shape else False
         
         #Action space becomes a tuple where the first element is the number of time to repeat and the second action is the behaviour action
-        self.action_space = gym.spaces.Tuple((Discrete(self.max_repeat), env.observation_space))
+        self.action_space = gym.spaces.Tuple((gym.spaces.Discrete(self.max_repeat), env.action_space))
 
         self.observation_space = env.observation_space
 
     def step(self, action_pair):        
-        
-        print(action_pair)
         skipper_num = action_pair[0]+1
         action = action_pair[1]
         int_reward = -self.int_reward
         ext_reward = 0
         for _ in range(skipper_num):
+            print("step")
             state, reward, done, info = self.env.step(action)
             int_reward += self.int_reward
             ext_reward += reward
@@ -78,7 +77,7 @@ class SkipperWrapper(gym.Wrapper):
                 break
         info['int_reward'] = int_reward
         info['ext_reward'] = ext_reward
-        return state, int_reward+ext_rewards, done, info
+        return state, int_reward+ext_reward, done, info
     
     def render(self):
         pass
