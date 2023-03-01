@@ -11,3 +11,14 @@
 - Tzu-Yun Ariel Shann, "Reinforcement Learning in the Presence of Sensing Costs" M.S. UBC 2022
 
 - Sharma, S. et al. "Learning to repeat: Fine grained action repetition for deep reinforcement learning." ICLR 2017.
+
+## Create conda environment named `amrl` and install dependencies:
+
+    sh conda/create_env.sh    
+
+## Activate the environment:
+    conda activate amrl
+
+
+
+Created March, 2023.
