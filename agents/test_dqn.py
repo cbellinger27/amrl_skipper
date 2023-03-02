@@ -42,20 +42,22 @@ def iterate_batches(env, net_bahave, net_skipper, batch_size):
     obs, _ = env.reset()
     sm = nn.Softmax(dim=1)
     while True:
-        obs_v = torch.FloatTensor([obs])
+        obs_v = torch.FloatTensor(np.expand_dims(obs, axis=0))
         
         act_probs_v_bahave = sm(net_behave(obs_v))
         act_probs_bahave = act_probs_v_bahave.data.numpy()[0]
         action_bahave = np.random.choice(len(act_probs_bahave), p=act_probs_bahave)
-
-        obs_v_skipper = torch.FloatTensor([obs,action_bahave])
+        
+        # obs_v_sk_tmp = np.expand_dims(np.append(obs,[action_bahave]), axis=0)
+        obs_v_sk_tmp = np.append(obs,[action_bahave])
+        obs_v_skipper = torch.FloatTensor(np.expand_dims(obs_v_sk_tmp, axis=0))
         act_probs_v_skipper = sm(net_skipper(obs_v_skipper))
         act_probs_skipper = act_probs_v_skipper.data.numpy()[0]
         action_skipper = np.random.choice(len(act_probs_skipper), p=act_probs_skipper)
         
         next_obs, reward, is_done, _, _ = env.step((action_skipper, action_bahave))
         episode_reward += reward
-        step = EpisodeStep(observation_behave=obs, observation_skipper=[obs,action_skipper],action=(action_skipper, action_bahave))
+        step = EpisodeStep(observation_behave=obs, observation_skipper=obs_v_sk_tmp,action=(action_skipper, action_bahave))
         episode_steps.append(step)
         if is_done:
             e = Episode(reward=episode_reward, steps=episode_steps)
@@ -83,10 +85,10 @@ def filter_batch(batch, percentile):
         train_obs_behave.extend(map(lambda step: step.observation_behave, steps))
         train_obs_skipper.extend(map(lambda step: step.observation_skipper, steps))
         train_act.extend(map(lambda step: step.action, steps))
-
-    train_obs_v_behave = torch.FloatTensor(train_obs_behave)
-    train_obs_v_skipper = torch.FloatTensor(train_obs_skipper)
-    train_act_v = torch.LongTensor(train_act)
+    
+    train_obs_v_behave = torch.FloatTensor(np.array(train_obs_behave))
+    train_obs_v_skipper = torch.FloatTensor(np.array(train_obs_skipper))
+    train_act_v = torch.LongTensor(np.array(train_act,dtype=np.float))
     return train_obs_v_behave, train_obs_v_skipper, train_act_v, reward_bound, reward_mean
 
 
@@ -108,18 +110,19 @@ if __name__ == "__main__":
 
     writer = SummaryWriter(comment="-cartpole_skipper")
 
-    for iter_no, batch in enumerate(iterate_batches(
-            env, net_behave, net_skipper, BATCH_SIZE)):
-        obs_v, acts_v_behave, acts_v_skipper, reward_b, reward_m = \
-            filter_batch(batch, PERCENTILE)
+    for iter_no, batch in enumerate(iterate_batches(env, net_behave, net_skipper, BATCH_SIZE)):
+        obs_v_behave, obs_v_skipper, acts_v, reward_b, reward_m = filter_batch(batch, PERCENTILE)
+        acts_v_behave = acts_v[:,1]
         optimizer_behave.zero_grad()
-        action_scores_v_behave = net_behave(obs_v)
+        action_scores_v_behave = net_behave(obs_v_behave)
         loss_v_behave = objective_behave(action_scores_v_behave, acts_v_behave)
         loss_v_behave.backward()
         optimizer_behave.step()
 
+        
+        acts_v_skipper = acts_v[:,0]
         optimizer_skipper.zero_grad()
-        action_scores_v_skipper = net_skipper(obs_v)
+        action_scores_v_skipper = net_skipper(obs_v_skipper)
         loss_v_skipper = objective_behave(action_scores_v_skipper, acts_v_skipper)
         loss_v_skipper.backward()
         optimizer_skipper.step()

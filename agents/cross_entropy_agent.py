@@ -93,6 +93,8 @@ if __name__ == "__main__":
             filter_batch(batch, PERCENTILE)
         optimizer.zero_grad()
         action_scores_v = net(obs_v)
+        print(action_scores_v.shape)
+        print(acts_v.shape)
         loss_v = objective(action_scores_v, acts_v)
         loss_v.backward()
         optimizer.step()
