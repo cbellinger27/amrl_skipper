@@ -1,7 +1,8 @@
-#%%
-
 #!/usr/bin/env python3
 import gym
+import sys
+sys.path.append('../')
+                
 from wrapper.skipper import make_env
 from collections import namedtuple
 import numpy as np
@@ -74,7 +75,8 @@ def filter_batch(batch, percentile):
     reward_mean = float(np.mean(rewards))
 
     train_obs_behave = []
-    train_act_skipper = []
+    train_obs_skipper = []
+    train_act = []
     for reward, steps in batch:
         if reward < reward_bound:
             continue
