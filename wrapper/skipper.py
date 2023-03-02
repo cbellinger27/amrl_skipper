@@ -70,7 +70,7 @@ class SkipperWrapper(gym.Wrapper):
         ext_reward = 0
         for _ in range(skipper_num):
             print("step")
-            state, reward, done, info = self.env.step(action)
+            state, reward, done, _, info = self.env.step(action)
             int_reward += self.int_reward
             ext_reward += reward
             if done:
@@ -83,5 +83,5 @@ class SkipperWrapper(gym.Wrapper):
         pass
     
     def reset(self):
-        state = self.env.reset()
-        return state
+        state, info = self.env.reset()
+        return state, info
