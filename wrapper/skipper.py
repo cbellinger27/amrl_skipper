@@ -69,7 +69,6 @@ class SkipperWrapper(gym.Wrapper):
         int_reward = -self.int_reward
         ext_reward = 0
         for _ in range(skipper_num):
-            print("step")
             state, reward, done, trunc, info = self.env.step(action)
             int_reward += self.int_reward
             ext_reward += reward

@@ -129,7 +129,8 @@ if __name__ == "__main__":
 
         print("%d: loss_behave=%.3f, loss_skipper=%.3f, reward_mean=%.1f, rw_bound=%.1f" % (
             iter_no, loss_v_behave.item(), loss_v_skipper.item(),reward_m, reward_b))
-        writer.add_scalar("loss", loss_v_behave.item(), loss_v_skipper.item(), iter_no)
+        writer.add_scalar("loss_behaviour", loss_v_behave.item(), iter_no)
+        writer.add_scalar("loss_skipper", loss_v_skipper.item(), iter_no)
         writer.add_scalar("reward_bound", reward_b, iter_no)
         writer.add_scalar("reward_mean", reward_m, iter_no)
         if reward_m > 199:
