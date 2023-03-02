@@ -70,14 +70,14 @@ class SkipperWrapper(gym.Wrapper):
         ext_reward = 0
         for _ in range(skipper_num):
             print("step")
-            state, reward, done, _, info = self.env.step(action)
+            state, reward, done, trunc, info = self.env.step(action)
             int_reward += self.int_reward
             ext_reward += reward
             if done:
                 break
         info['int_reward'] = int_reward
         info['ext_reward'] = ext_reward
-        return state, int_reward+ext_reward, done, info
+        return state, int_reward+ext_reward, done, trunc, info
     
     def render(self):
         pass
