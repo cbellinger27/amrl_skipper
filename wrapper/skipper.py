@@ -3,7 +3,7 @@ import numpy as np
 from gym.spaces import Box
 
   
-def make_env(env_name, int_reward, max_repeat, vanilla):
+def make_env(env_name, int_reward, max_repeat, vanilla, render_mode=None):
     """
     Make an environment, potentially wrapping it in MeasureWrapper.
     
@@ -16,7 +16,7 @@ def make_env(env_name, int_reward, max_repeat, vanilla):
     Returns:
         A gym environment.
     """
-    env = gym.make(env_name)
+    env = gym.make(env_name, render_mode=render_mode)
     if vanilla:
         return VanillaWrapper(env)
     else:
@@ -70,9 +70,10 @@ class SkipperWrapper(gym.Wrapper):
         ext_reward = 0
         for _ in range(skipper_num):
             state, reward, done, trunc, info = self.env.step(action)
+            print(done, trunc)
             int_reward += self.int_reward
             ext_reward += reward
-            if done:
+            if done or trunc:
                 break
         info['int_reward'] = int_reward
         info['ext_reward'] = ext_reward

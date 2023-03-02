@@ -1,7 +1,7 @@
 import gym
 from wrapper.skipper import make_env
 
-env = make_env('CartPole-v0', 1, 3, False)
+env = make_env('CartPole-v0', 1, 3, False, render_mode='human')
 env.reset()
 
 for _ in range(5):

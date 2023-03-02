@@ -135,17 +135,17 @@ if __name__ == "__main__":
         writer.add_scalar("reward_bound", reward_b, iter_no)
         writer.add_scalar("reward_mean", reward_m, iter_no)
         # if reward_m > 199:
-        if iter_no > 70:
+        if iter_no > 60:
             print("Done!")
             break
     writer.close()
 # %%
+import time
 
-env = make_env('CartPole-v1', 0.2, 3, False)
+env = make_env('CartPole-v1', 0.2, 3, False, render_mode='human')
 obs, _ = env.reset()
-env.env.render()
 
-for _ in range(5):
+for _ in range(1):
     done = False
     trunc = False
     while not done and not trunc:
@@ -156,22 +156,27 @@ for _ in range(5):
         obs_v_skipper = torch.FloatTensor(np.expand_dims(obs_v_sk_tmp, axis=0))
         act_probs_v_skipper = net_skipper(obs_v_skipper)
         action_skipper = torch.argmax(act_probs_v_bahave)
-        next_obs, reward, is_done, _, _ = env.step((action_skipper.numpy(), action_bahave.numpy()))
+        next_obs, reward, done, trunc, _ = env.step((action_skipper.numpy(), action_bahave.numpy()))
         obs = next_obs
-        env.env.render()
     
     obs, _ = env.reset()
-    env.env.render()
+    done = False
+    trunc = False
+    print("end of episode")
+    time.sleep(1.5)
+env.close()
 # %%
 
-
+import gym
 env = gym.make("CartPole-v1", render_mode="human")
 observation, info = env.reset(seed=42)
-for _ in range(1000):
+for it in range(200):
    action = env.action_space.sample() # User-defined policy function
    observation, reward, terminated, truncated, info = env.step(action)
-
    if terminated or truncated:
-      observation, info = env.reset()
+        print("done episode")
+        observation, info = env.reset()
 env.close()
+# %%
+print(terminated, truncated)
 # %%
