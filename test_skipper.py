@@ -6,8 +6,11 @@ env.reset()
 
 for _ in range(5):
     done = False
-    while not done:
+    trunc = False
+    while not done and not trunc:
         ap = env.action_space.sample()
         print(ap)
-        s, r, done, i = env.step(ap)
+        s, r, done, trunc, i = env.step(ap)
+        print(i)
+        print(r)
     env.reset()
