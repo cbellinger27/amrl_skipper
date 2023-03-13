@@ -13,6 +13,7 @@ HIDDEN_SIZE = 128
 BATCH_SIZE = 16
 PERCENTILE = 70
 
+device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 class Net(nn.Module):
     def __init__(self, obs_size, hidden_size, n_actions):
@@ -39,7 +40,9 @@ def iterate_batches(env, net, batch_size):
     sm = nn.Softmax(dim=1)
     while True:
         obs_v = torch.FloatTensor([obs])
+        obs_v = obs_v.to(device)
         act_probs_v = sm(net(obs_v))
+        act_probs_v = act_probs_v.cpu()
         act_probs = act_probs_v.data.numpy()[0]
         action = np.random.choice(len(act_probs), p=act_probs)
         next_obs, reward, is_done, _, _ = env.step(action)
@@ -81,21 +84,18 @@ if __name__ == "__main__":
     # env = gym.wrappers.Monitor(env, directory="mon", force=True)
     obs_size = env.observation_space.shape[0]
     n_actions = env.action_space.n
-
     net = Net(obs_size, HIDDEN_SIZE, n_actions)
+    net.to(device)
     objective = nn.CrossEntropyLoss()
     optimizer = optim.Adam(params=net.parameters(), lr=0.01)
     writer = SummaryWriter(comment="-cartpole")
 
-    for iter_no, batch in enumerate(iterate_batches(
-            env, net, BATCH_SIZE)):
-        obs_v, acts_v, reward_b, reward_m = \
-            filter_batch(batch, PERCENTILE)
+    for iter_no, batch in enumerate(iterate_batches(env, net, BATCH_SIZE)):
+        obs_v, acts_v, reward_b, reward_m = filter_batch(batch, PERCENTILE)
         optimizer.zero_grad()
+        obs_v = obs_v.to(device)
         action_scores_v = net(obs_v)
-        print(action_scores_v.shape)
-        print(acts_v.shape)
-        loss_v = objective(action_scores_v, acts_v)
+        loss_v = objective(action_scores_v, acts_v.to(device))
         loss_v.backward()
         optimizer.step()
         print("%d: loss=%.3f, reward_mean=%.1f, rw_bound=%.1f" % (
